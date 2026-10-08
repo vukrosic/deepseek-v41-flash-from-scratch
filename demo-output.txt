@@ -1,0 +1,54 @@
+all checks pass
+
+=== step1_notes.py
+ordinary model: 213,569 weights, right answers 100.0%
+one line: k17 v12 k19 v31 k29 v5 ... ? k19 v31 ? k29 v5 ...
+no notes: 12,640 runs of a layer on a token, 43 ms
+notes:    316 runs, 26 ms  (40 times fewer runs)
+largest gap between the two sets of scores: 7.6e-06
+the notes hold 40,448 numbers for 79 tokens: 2,048 bytes per token
+
+=== step2_one_note.py
+own     4 layers write:   1024 bytes per token, right answers 100.0%
+shared  2 layers write:    512 bytes per token, right answers 100.0% (two random starts: 26.8%, 100.0%)
+
+=== step3_squeeze.py
+one note per  2 tokens:  256.0 bytes per token, right answers 100.0%
+one note per  4 tokens:  128.0 bytes per token, right answers 100.0%
+one note per  8 tokens:   64.0 bytes per token, right answers 36.7% (two random starts: 35.7%, 36.7%)
+one note per 16 tokens:   32.0 bytes per token, right answers 23.6% (two random starts: 23.4%, 23.6%)
+bottom half in pairs, top half whole: 384 bytes per token, right answers 100.0%
+
+=== step4_four_bits.py
+the 4-bit sizes: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0] and a sign
+16 real numbers: [-0.023, 0.266, -0.806, -0.016, -0.144, -0.254, 0.454, -1.663, 0.204, 0.323, -1.676, -0.599, -1.336, 0.397, 0.318, 0.177]
+largest 1.676 / 6 = 0.2794, kept as the scale 0.2812
+in steps of the scale: [-0.08, 0.95, -2.87, -0.06, -0.51, -0.9, 1.61, -5.91, 0.73, 1.15, -5.96, -2.13, -4.75, 1.41, 1.13, 0.63]
+snapped: [-0.0, 1.0, -3.0, -0.0, -0.5, -1.0, 1.5, -6.0, 0.5, 1.0, -6.0, -2.0, -4.0, 1.5, 1.0, 0.5]
+read back: [-0.0, 0.281, -0.844, -0.0, -0.141, -0.281, 0.422, -1.688, 0.141, 0.281, -1.688, -0.562, -1.125, 0.422, 0.281, 0.141]
+mean error 0.040 on a mean size of 0.541
+finished model, exact notes: 100.0% · rounded to 4 bits: 100.0% · signs only (1 bit): 72.2%
+trained with 4-bit notes: 54 bytes per token, right answers 100.0%
+
+=== step5_index.py
+trained reading every note: right answers 100.0%; memory with index keys 67.5 bytes per token
+read 4 notes picked at random:  17.5%
+read the 1 notes the index picks: 99.9%
+read the 2 notes the index picks: 100.0%
+read the 4 notes the index picks: 100.0%
+read the 8 notes the index picks: 100.0%
+
+=== step6_two_halves.py
+every token through every layer: 79 x 4 = 316 runs
+prompt through the bottom half, the last 8 tokens replayed above: 167 runs
+largest gap between the scores, over 200 prompts: 3.8e-06
+right answers: 100.0% and 100.0%
+
+=== step7_bill.py
+ordinary notes                   819,200 bytes per token     819.20 GB per million tokens
+one vector for key and value      40,960 bytes per token      40.96 GB per million tokens
+4 layers write                     4,096 bytes per token       4.10 GB per million tokens
+bottom half in pairs               2,560 bytes per token       2.56 GB per million tokens
+4-bit numbers                        720 bytes per token       0.72 GB per million tokens
+plus index keys                      890 bytes per token       0.89 GB per million tokens
+one note 288 bytes, one index key 68 bytes; 920 times smaller in total
